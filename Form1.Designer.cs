@@ -256,6 +256,7 @@ namespace WordamentCheater
             this.cmbLanguage.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbLanguage.FormattingEnabled = true;
             this.cmbLanguage.Items.AddRange(new object[] {
+            "English",
             "Spanish",
             "French"});
             this.cmbLanguage.Location = new System.Drawing.Point(33, 27);
@@ -289,7 +290,7 @@ namespace WordamentCheater
             this.Controls.Add(this.slot12);
             this.Controls.Add(this.slot11);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Wordament Robot";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.statusStrip1.ResumeLayout(false);

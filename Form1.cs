@@ -35,7 +35,6 @@ namespace WordamentCheater
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
             globalHook = Hook.GlobalEvents();
             globalHook.KeyPress += GlobalHookKeyPress;
             cmbLanguage.SelectedIndex = 0;
@@ -105,14 +104,12 @@ namespace WordamentCheater
 
         private string CheckWord(Dictionary<string, string> dict, BoardSlot slot, List<BoardSlot> usedSlots, string currentWord, Dictionary<string, BoardSlot[]> resultingWords)
         {
-            
-            currentWord += slot.Letter;
-
+           
             if(currentWord.Length > 2 && dict.ContainsKey(currentWord))
             {
                 if (!resultingWords.ContainsKey(currentWord))
                 {
-                    resultingWords.Add(currentWord, usedSlots.Append(slot).ToArray());
+                    resultingWords.Add(currentWord, usedSlots.ToArray());
                 }
             }
 
@@ -120,7 +117,15 @@ namespace WordamentCheater
             {
                 if (!usedSlots.Contains(neighbor))
                 {
-                    CheckWord(dict, neighbor, usedSlots.Append(slot).ToList(), "" + currentWord, resultingWords);
+                    if (slot.Letter.Contains("/"))
+                    {
+                        CheckWord(dict, neighbor, usedSlots.Append(slot).ToList(), currentWord + slot.Letter.Split('/')[0], resultingWords);
+                        CheckWord(dict, neighbor, usedSlots.Append(slot).ToList(), currentWord + slot.Letter.Split('/')[1], resultingWords);
+                    }
+                    else
+                    {
+                        CheckWord(dict, neighbor, usedSlots.Append(slot).ToList(), currentWord + slot.Letter, resultingWords);
+                    }
                 }
             }
 
@@ -136,7 +141,7 @@ namespace WordamentCheater
             {
                 var key = word.ToUpper().Replace("Á", "A").Replace("É", "E").Replace("Í", "I")
                     .Replace("Ó", "O").Replace("Ú", "U").Replace("È", "E").Replace("Ê", "E")
-                    .Replace("À", "A");
+                    .Replace("À", "A").Replace("Ï", "I");
 
                 if (!dictionary.ContainsKey(key))
                     dictionary.Add(key, word);
