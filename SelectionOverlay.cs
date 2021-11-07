@@ -12,11 +12,12 @@ namespace WordamentCheater
 {
     public class SelectionOverlay : Form
     {
-        Point startPos;
-        Point currentPos;
-        bool drawing;
+        Point _startPos;
+        Point _currentPos;
+        bool _drawing;
+        string _message;
 
-        public SelectionOverlay()
+        public SelectionOverlay(string message)
         {
             WindowState = FormWindowState.Maximized;
             FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
@@ -29,6 +30,7 @@ namespace WordamentCheater
             Paint += Form_Paint;
             KeyDown += Form_KeyDown;
             DoubleBuffered = true;
+            _message = message;
         }
 
         private void Form_KeyDown(object sender, KeyEventArgs e)
@@ -40,25 +42,25 @@ namespace WordamentCheater
             }
         }
 
-        public Rectangle GetRectangle()
+        public Rectangle GetSelectionArea()
         {
             return new Rectangle(
-                Math.Min(startPos.X, currentPos.X),
-                Math.Min(startPos.Y, currentPos.Y),
-                Math.Abs(startPos.X - currentPos.X),
-                Math.Abs(startPos.Y - currentPos.Y));
+                Math.Min(_startPos.X, _currentPos.X),
+                Math.Min(_startPos.Y, _currentPos.Y),
+                Math.Abs(_startPos.X - _currentPos.X),
+                Math.Abs(_startPos.Y - _currentPos.Y));
         }
 
         private void Form_MouseDown(object sender, MouseEventArgs e)
         {
-            currentPos = startPos = e.Location;
-            drawing = true;
+            _currentPos = _startPos = e.Location;
+            _drawing = true;
         }
 
         private void Form_MouseMove(object sender, MouseEventArgs e)
         {
-            currentPos = e.Location;
-            if (drawing) this.Invalidate();
+            _currentPos = e.Location;
+            if (_drawing) this.Invalidate();
         }
 
         private void Form_MouseUp(object sender, MouseEventArgs e)
@@ -69,7 +71,22 @@ namespace WordamentCheater
 
         private void Form_Paint(object sender, PaintEventArgs e)
         {
-            if (drawing) e.Graphics.DrawRectangle(Pens.Red, GetRectangle());
+            using (var brush = new SolidBrush(Color.Black))
+            {
+                var font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+
+                var messageSize = e.Graphics.MeasureString(_message, font);
+
+                e.Graphics.DrawString(_message,
+                    font,
+                    brush,
+                    new PointF(
+                        (Screen.PrimaryScreen.Bounds.Width / 2) - (messageSize.Width / 2), 
+                        Screen.PrimaryScreen.Bounds.Height / 2)
+                );
+            }            
+            if (_drawing) 
+                e.Graphics.DrawRectangle(Pens.Red, GetSelectionArea());
         }
 
         private void InitializeComponent()

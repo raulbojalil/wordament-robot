@@ -45,17 +45,20 @@ namespace WordamentCheater
             this.slot43 = new System.Windows.Forms.TextBox();
             this.slot42 = new System.Windows.Forms.TextBox();
             this.slot41 = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnStart = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.tssLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tslStatus = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tspProgressBar = new System.Windows.Forms.ToolStripProgressBar();
+            this.txtSolutions = new System.Windows.Forms.TextBox();
+            this.cmbLanguage = new System.Windows.Forms.ComboBox();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // slot11
             // 
-            this.slot11.Location = new System.Drawing.Point(28, 27);
+            this.slot11.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.slot11.Location = new System.Drawing.Point(33, 69);
             this.slot11.Multiline = true;
             this.slot11.Name = "slot11";
             this.slot11.Size = new System.Drawing.Size(49, 39);
@@ -63,7 +66,8 @@ namespace WordamentCheater
             // 
             // slot12
             // 
-            this.slot12.Location = new System.Drawing.Point(83, 27);
+            this.slot12.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.slot12.Location = new System.Drawing.Point(88, 69);
             this.slot12.Multiline = true;
             this.slot12.Name = "slot12";
             this.slot12.Size = new System.Drawing.Size(49, 39);
@@ -71,7 +75,8 @@ namespace WordamentCheater
             // 
             // slot13
             // 
-            this.slot13.Location = new System.Drawing.Point(138, 27);
+            this.slot13.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.slot13.Location = new System.Drawing.Point(143, 69);
             this.slot13.Multiline = true;
             this.slot13.Name = "slot13";
             this.slot13.Size = new System.Drawing.Size(49, 39);
@@ -79,7 +84,8 @@ namespace WordamentCheater
             // 
             // slot14
             // 
-            this.slot14.Location = new System.Drawing.Point(193, 27);
+            this.slot14.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.slot14.Location = new System.Drawing.Point(198, 69);
             this.slot14.Multiline = true;
             this.slot14.Name = "slot14";
             this.slot14.Size = new System.Drawing.Size(49, 39);
@@ -87,7 +93,8 @@ namespace WordamentCheater
             // 
             // slot24
             // 
-            this.slot24.Location = new System.Drawing.Point(193, 72);
+            this.slot24.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.slot24.Location = new System.Drawing.Point(198, 114);
             this.slot24.Multiline = true;
             this.slot24.Name = "slot24";
             this.slot24.Size = new System.Drawing.Size(49, 39);
@@ -95,7 +102,8 @@ namespace WordamentCheater
             // 
             // slot23
             // 
-            this.slot23.Location = new System.Drawing.Point(138, 72);
+            this.slot23.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.slot23.Location = new System.Drawing.Point(143, 114);
             this.slot23.Multiline = true;
             this.slot23.Name = "slot23";
             this.slot23.Size = new System.Drawing.Size(49, 39);
@@ -103,7 +111,8 @@ namespace WordamentCheater
             // 
             // slot22
             // 
-            this.slot22.Location = new System.Drawing.Point(83, 72);
+            this.slot22.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.slot22.Location = new System.Drawing.Point(88, 114);
             this.slot22.Multiline = true;
             this.slot22.Name = "slot22";
             this.slot22.Size = new System.Drawing.Size(49, 39);
@@ -111,7 +120,8 @@ namespace WordamentCheater
             // 
             // slot21
             // 
-            this.slot21.Location = new System.Drawing.Point(28, 72);
+            this.slot21.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.slot21.Location = new System.Drawing.Point(33, 114);
             this.slot21.Multiline = true;
             this.slot21.Name = "slot21";
             this.slot21.Size = new System.Drawing.Size(49, 39);
@@ -119,7 +129,8 @@ namespace WordamentCheater
             // 
             // slot34
             // 
-            this.slot34.Location = new System.Drawing.Point(193, 117);
+            this.slot34.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.slot34.Location = new System.Drawing.Point(198, 159);
             this.slot34.Multiline = true;
             this.slot34.Name = "slot34";
             this.slot34.Size = new System.Drawing.Size(49, 39);
@@ -127,7 +138,8 @@ namespace WordamentCheater
             // 
             // slot33
             // 
-            this.slot33.Location = new System.Drawing.Point(138, 117);
+            this.slot33.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.slot33.Location = new System.Drawing.Point(143, 159);
             this.slot33.Multiline = true;
             this.slot33.Name = "slot33";
             this.slot33.Size = new System.Drawing.Size(49, 39);
@@ -135,7 +147,8 @@ namespace WordamentCheater
             // 
             // slot32
             // 
-            this.slot32.Location = new System.Drawing.Point(83, 117);
+            this.slot32.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.slot32.Location = new System.Drawing.Point(88, 159);
             this.slot32.Multiline = true;
             this.slot32.Name = "slot32";
             this.slot32.Size = new System.Drawing.Size(49, 39);
@@ -143,7 +156,8 @@ namespace WordamentCheater
             // 
             // slot31
             // 
-            this.slot31.Location = new System.Drawing.Point(28, 117);
+            this.slot31.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.slot31.Location = new System.Drawing.Point(33, 159);
             this.slot31.Multiline = true;
             this.slot31.Name = "slot31";
             this.slot31.Size = new System.Drawing.Size(49, 39);
@@ -151,7 +165,8 @@ namespace WordamentCheater
             // 
             // slot44
             // 
-            this.slot44.Location = new System.Drawing.Point(193, 162);
+            this.slot44.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.slot44.Location = new System.Drawing.Point(198, 204);
             this.slot44.Multiline = true;
             this.slot44.Name = "slot44";
             this.slot44.Size = new System.Drawing.Size(49, 39);
@@ -159,7 +174,8 @@ namespace WordamentCheater
             // 
             // slot43
             // 
-            this.slot43.Location = new System.Drawing.Point(138, 162);
+            this.slot43.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.slot43.Location = new System.Drawing.Point(143, 204);
             this.slot43.Multiline = true;
             this.slot43.Name = "slot43";
             this.slot43.Size = new System.Drawing.Size(49, 39);
@@ -167,7 +183,8 @@ namespace WordamentCheater
             // 
             // slot42
             // 
-            this.slot42.Location = new System.Drawing.Point(83, 162);
+            this.slot42.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.slot42.Location = new System.Drawing.Point(88, 204);
             this.slot42.Multiline = true;
             this.slot42.Name = "slot42";
             this.slot42.Size = new System.Drawing.Size(49, 39);
@@ -175,44 +192,45 @@ namespace WordamentCheater
             // 
             // slot41
             // 
-            this.slot41.Location = new System.Drawing.Point(28, 162);
+            this.slot41.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.slot41.Location = new System.Drawing.Point(33, 204);
             this.slot41.Multiline = true;
             this.slot41.Name = "slot41";
             this.slot41.Size = new System.Drawing.Size(49, 39);
             this.slot41.TabIndex = 12;
             // 
-            // button1
+            // btnStart
             // 
-            this.button1.Location = new System.Drawing.Point(28, 216);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(214, 63);
-            this.button1.TabIndex = 16;
-            this.button1.Text = "START";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.btnStart.Location = new System.Drawing.Point(33, 262);
+            this.btnStart.Name = "btnStart";
+            this.btnStart.Size = new System.Drawing.Size(214, 52);
+            this.btnStart.TabIndex = 16;
+            this.btnStart.Text = "START";
+            this.btnStart.UseVisualStyleBackColor = true;
+            this.btnStart.Click += new System.EventHandler(this.button1_Click);
             // 
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tssLabel,
+            this.tslStatus,
             this.toolStripStatusLabel2,
             this.tspProgressBar});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 307);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 551);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(270, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(598, 22);
             this.statusStrip1.TabIndex = 18;
             this.statusStrip1.Text = "statusStrip1";
             // 
-            // tssLabel
+            // tslStatus
             // 
-            this.tssLabel.Name = "tssLabel";
-            this.tssLabel.Size = new System.Drawing.Size(39, 17);
-            this.tssLabel.Text = "Ready";
+            this.tslStatus.Name = "tslStatus";
+            this.tslStatus.Size = new System.Drawing.Size(39, 17);
+            this.tslStatus.Text = "Ready";
             // 
             // toolStripStatusLabel2
             // 
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(114, 17);
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(442, 17);
             this.toolStripStatusLabel2.Spring = true;
             // 
             // tspProgressBar
@@ -220,13 +238,40 @@ namespace WordamentCheater
             this.tspProgressBar.Name = "tspProgressBar";
             this.tspProgressBar.Size = new System.Drawing.Size(100, 16);
             // 
+            // txtSolutions
+            // 
+            this.txtSolutions.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtSolutions.Location = new System.Drawing.Point(281, 27);
+            this.txtSolutions.Multiline = true;
+            this.txtSolutions.Name = "txtSolutions";
+            this.txtSolutions.ReadOnly = true;
+            this.txtSolutions.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtSolutions.Size = new System.Drawing.Size(288, 505);
+            this.txtSolutions.TabIndex = 20;
+            // 
+            // cmbLanguage
+            // 
+            this.cmbLanguage.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbLanguage.FormattingEnabled = true;
+            this.cmbLanguage.Items.AddRange(new object[] {
+            "Spanish",
+            "French"});
+            this.cmbLanguage.Location = new System.Drawing.Point(33, 27);
+            this.cmbLanguage.Name = "cmbLanguage";
+            this.cmbLanguage.Size = new System.Drawing.Size(214, 21);
+            this.cmbLanguage.TabIndex = 21;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(270, 329);
+            this.ClientSize = new System.Drawing.Size(598, 573);
+            this.Controls.Add(this.cmbLanguage);
+            this.Controls.Add(this.txtSolutions);
             this.Controls.Add(this.statusStrip1);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.btnStart);
             this.Controls.Add(this.slot44);
             this.Controls.Add(this.slot43);
             this.Controls.Add(this.slot42);
@@ -245,6 +290,7 @@ namespace WordamentCheater
             this.Controls.Add(this.slot11);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
@@ -271,11 +317,13 @@ namespace WordamentCheater
         private System.Windows.Forms.TextBox slot43;
         private System.Windows.Forms.TextBox slot42;
         private System.Windows.Forms.TextBox slot41;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.StatusStrip statusStrip1;
-        private System.Windows.Forms.ToolStripStatusLabel tssLabel;
+        private System.Windows.Forms.ToolStripStatusLabel tslStatus;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
         private System.Windows.Forms.ToolStripProgressBar tspProgressBar;
+        private System.Windows.Forms.TextBox txtSolutions;
+        private System.Windows.Forms.ComboBox cmbLanguage;
     }
 }
 

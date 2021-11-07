@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Gma.System.MouseKeyHook;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WordamentCheater
@@ -16,8 +18,11 @@ namespace WordamentCheater
             InitializeComponent();
         }
 
-        private const int ROWS = 4;
-        private const int COLS = 4;
+        private const int BOARD_ROWS = 4;
+        private const int BOARD_COLS = 4;
+
+        private bool pendingStop;
+        private IKeyboardMouseEvents globalHook;
 
         public class BoardSlot
         {
@@ -31,22 +36,60 @@ namespace WordamentCheater
         private void Form1_Load(object sender, EventArgs e)
         {
 
+            globalHook = Hook.GlobalEvents();
+            globalHook.KeyPress += GlobalHookKeyPress;
+            cmbLanguage.SelectedIndex = 0;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void GlobalHookKeyPress(object sender, KeyPressEventArgs e)
         {
-            using (SelectionOverlay canvas = new SelectionOverlay())
+            if(e.KeyChar == 27)
             {
-                if (canvas.ShowDialog() == DialogResult.OK)
-                {
-                    var board = InitBoard(canvas.GetRectangle());
-                    var dictionary = ReadDictionary();
-                    var solutionWords = GetSolutionWords(board, dictionary);
+                pendingStop = true;
+            }
+        }
 
-                    foreach (var word in solutionWords)
+        private async void button1_Click(object sender, EventArgs e)
+        {
+            using (var overlay = new SelectionOverlay("Draw a rectangle around the game area to start"))
+            {
+                if (overlay.ShowDialog() == DialogResult.OK)
+                {
+                    var language = cmbLanguage.Text;
+                    btnStart.Enabled = false;
+                    pendingStop = false;
+                    tslStatus.Text = "Initializing board...";
+                    
+
+                    var task = new Task(() =>
                     {
-                        ExecuteWord(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height, word.Value);
-                    }
+                        var board = InitBoard(overlay.GetSelectionArea());
+                        var dictionary = ReadDictionary($"{language.ToLower()}.txt");
+                        var solutionWords = GetSolutionWords(board, dictionary);
+
+                        var orderedWords = solutionWords.OrderByDescending(x => x.Key.Length);
+
+                        BeginInvoke((Action)(() =>
+                        {
+                            txtSolutions.Lines = orderedWords.Select(x => x.Key).ToArray();
+                        }));
+
+                        foreach (var word in orderedWords)
+                        {
+                            if (pendingStop)
+                            {
+                                BeginInvoke((Action)(() =>
+                                {
+                                    tslStatus.Text = "Stopped";
+                                    btnStart.Enabled = true;
+                                }));
+                                return;
+
+                            }
+                            ExecuteWord(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height, word.Value);
+                        }
+                    });
+                    task.Start();
                 }
             }
         }
@@ -54,8 +97,8 @@ namespace WordamentCheater
         private BoardSlot GetBoardSlot(BoardSlot[,] boardSlot, int row, int col)
         {
             if (row < 0 || col < 0) return null;
-            if (row >= ROWS) return null;
-            if (col >= ROWS) return null;
+            if (row >= BOARD_ROWS) return null;
+            if (col >= BOARD_ROWS) return null;
 
             return boardSlot[row, col];
         }
@@ -85,13 +128,15 @@ namespace WordamentCheater
         }
 
 
-        private Dictionary<string, string> ReadDictionary()
+        private Dictionary<string, string> ReadDictionary(string dictionaryName)
         {
             var dictionary = new Dictionary<string, string>();
 
-            foreach (var word in File.ReadAllLines("spanish.txt"))
+            foreach (var word in File.ReadAllLines(dictionaryName))
             {
-                var key = word.ToUpper().Replace("Á", "A").Replace("É", "E").Replace("Í", "I").Replace("Ó", "O").Replace("Ú", "U");
+                var key = word.ToUpper().Replace("Á", "A").Replace("É", "E").Replace("Í", "I")
+                    .Replace("Ó", "O").Replace("Ú", "U").Replace("È", "E").Replace("Ê", "E")
+                    .Replace("À", "A");
 
                 if (!dictionary.ContainsKey(key))
                     dictionary.Add(key, word);
@@ -105,9 +150,9 @@ namespace WordamentCheater
             
             var resultingWords = new Dictionary<string, BoardSlot[]>();
 
-            for (var i = 0; i < ROWS; i++)
+            for (var i = 0; i < BOARD_ROWS; i++)
             {
-                for (var j = 0; j < COLS; j++)
+                for (var j = 0; j < BOARD_COLS; j++)
                 {
                     CheckWord(dictionary, board[i, j], new List<BoardSlot>(), "", resultingWords);
                 }
@@ -118,7 +163,10 @@ namespace WordamentCheater
 
         private void ExecuteWord(double screenWidth, double screenHeight, BoardSlot[] word)
         {
-            tssLabel.Text = "Executing " + string.Join("", word.Select(x => x.Letter));
+            BeginInvoke((Action)(() =>
+            {
+                tslStatus.Text = "Executing " + string.Join("", word.Select(x => x.Letter));
+            }));
 
             var input = new WindowsInput.InputSimulator();
 
@@ -140,8 +188,8 @@ namespace WordamentCheater
 
         private BoardSlot[,] InitBoard(Rectangle gameArea)
         {
-            var board = new BoardSlot[ROWS, COLS];
-            var letters = new string[ROWS, COLS]
+            var board = new BoardSlot[BOARD_ROWS, BOARD_COLS];
+            var letters = new string[BOARD_ROWS, BOARD_COLS]
             {
                 { slot11.Text, slot12.Text, slot13.Text, slot14.Text },
                 { slot21.Text, slot22.Text, slot23.Text, slot24.Text },
@@ -149,12 +197,12 @@ namespace WordamentCheater
                 { slot41.Text, slot42.Text, slot43.Text, slot44.Text },
             };
 
-            var slotWidth = gameArea.Width / COLS;
-            var slotHeight = gameArea.Height / ROWS;
+            var slotWidth = gameArea.Width / BOARD_COLS;
+            var slotHeight = gameArea.Height / BOARD_ROWS;
 
-            for (var i = 0; i < ROWS; i++)
+            for (var i = 0; i < BOARD_ROWS; i++)
             {
-                for (var j = 0; j < COLS; j++)
+                for (var j = 0; j < BOARD_COLS; j++)
                 {
                     board[i, j] = new BoardSlot()
                     {
@@ -165,9 +213,9 @@ namespace WordamentCheater
                 }
             }
 
-            for (var i = 0; i < ROWS; i++)
+            for (var i = 0; i < BOARD_ROWS; i++)
             {
-                for (var j = 0; j < COLS; j++)
+                for (var j = 0; j < BOARD_COLS; j++)
                 {
                     board[i, j].Neighbors = new BoardSlot[]
                     {
@@ -186,7 +234,11 @@ namespace WordamentCheater
 
             return board;
         }
-        
-        
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            globalHook.KeyPress -= GlobalHookKeyPress;
+            globalHook.Dispose();
+        }
     }
 }
