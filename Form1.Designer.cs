@@ -52,6 +52,7 @@ namespace WordamentCheater
             this.tspProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.txtSolutions = new System.Windows.Forms.TextBox();
             this.cmbLanguage = new System.Windows.Forms.ComboBox();
+            this.btnOcr = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -63,6 +64,7 @@ namespace WordamentCheater
             this.slot11.Name = "slot11";
             this.slot11.Size = new System.Drawing.Size(49, 39);
             this.slot11.TabIndex = 0;
+            this.slot11.Enter += new System.EventHandler(this.textBoxSlot_Enter);
             // 
             // slot12
             // 
@@ -72,6 +74,7 @@ namespace WordamentCheater
             this.slot12.Name = "slot12";
             this.slot12.Size = new System.Drawing.Size(49, 39);
             this.slot12.TabIndex = 1;
+            this.slot12.Enter += new System.EventHandler(this.textBoxSlot_Enter);
             // 
             // slot13
             // 
@@ -81,6 +84,7 @@ namespace WordamentCheater
             this.slot13.Name = "slot13";
             this.slot13.Size = new System.Drawing.Size(49, 39);
             this.slot13.TabIndex = 2;
+            this.slot13.Enter += new System.EventHandler(this.textBoxSlot_Enter);
             // 
             // slot14
             // 
@@ -90,6 +94,7 @@ namespace WordamentCheater
             this.slot14.Name = "slot14";
             this.slot14.Size = new System.Drawing.Size(49, 39);
             this.slot14.TabIndex = 3;
+            this.slot14.Enter += new System.EventHandler(this.textBoxSlot_Enter);
             // 
             // slot24
             // 
@@ -99,6 +104,7 @@ namespace WordamentCheater
             this.slot24.Name = "slot24";
             this.slot24.Size = new System.Drawing.Size(49, 39);
             this.slot24.TabIndex = 7;
+            this.slot24.Enter += new System.EventHandler(this.textBoxSlot_Enter);
             // 
             // slot23
             // 
@@ -108,6 +114,7 @@ namespace WordamentCheater
             this.slot23.Name = "slot23";
             this.slot23.Size = new System.Drawing.Size(49, 39);
             this.slot23.TabIndex = 6;
+            this.slot23.Enter += new System.EventHandler(this.textBoxSlot_Enter);
             // 
             // slot22
             // 
@@ -117,6 +124,7 @@ namespace WordamentCheater
             this.slot22.Name = "slot22";
             this.slot22.Size = new System.Drawing.Size(49, 39);
             this.slot22.TabIndex = 5;
+            this.slot22.Enter += new System.EventHandler(this.textBoxSlot_Enter);
             // 
             // slot21
             // 
@@ -126,6 +134,7 @@ namespace WordamentCheater
             this.slot21.Name = "slot21";
             this.slot21.Size = new System.Drawing.Size(49, 39);
             this.slot21.TabIndex = 4;
+            this.slot21.Enter += new System.EventHandler(this.textBoxSlot_Enter);
             // 
             // slot34
             // 
@@ -135,6 +144,7 @@ namespace WordamentCheater
             this.slot34.Name = "slot34";
             this.slot34.Size = new System.Drawing.Size(49, 39);
             this.slot34.TabIndex = 11;
+            this.slot34.Enter += new System.EventHandler(this.textBoxSlot_Enter);
             // 
             // slot33
             // 
@@ -144,6 +154,7 @@ namespace WordamentCheater
             this.slot33.Name = "slot33";
             this.slot33.Size = new System.Drawing.Size(49, 39);
             this.slot33.TabIndex = 10;
+            this.slot33.Enter += new System.EventHandler(this.textBoxSlot_Enter);
             // 
             // slot32
             // 
@@ -153,6 +164,7 @@ namespace WordamentCheater
             this.slot32.Name = "slot32";
             this.slot32.Size = new System.Drawing.Size(49, 39);
             this.slot32.TabIndex = 9;
+            this.slot32.Enter += new System.EventHandler(this.textBoxSlot_Enter);
             // 
             // slot31
             // 
@@ -162,6 +174,7 @@ namespace WordamentCheater
             this.slot31.Name = "slot31";
             this.slot31.Size = new System.Drawing.Size(49, 39);
             this.slot31.TabIndex = 8;
+            this.slot31.Enter += new System.EventHandler(this.textBoxSlot_Enter);
             // 
             // slot44
             // 
@@ -171,6 +184,7 @@ namespace WordamentCheater
             this.slot44.Name = "slot44";
             this.slot44.Size = new System.Drawing.Size(49, 39);
             this.slot44.TabIndex = 15;
+            this.slot44.Enter += new System.EventHandler(this.textBoxSlot_Enter);
             // 
             // slot43
             // 
@@ -180,6 +194,7 @@ namespace WordamentCheater
             this.slot43.Name = "slot43";
             this.slot43.Size = new System.Drawing.Size(49, 39);
             this.slot43.TabIndex = 14;
+            this.slot43.Enter += new System.EventHandler(this.textBoxSlot_Enter);
             // 
             // slot42
             // 
@@ -189,6 +204,7 @@ namespace WordamentCheater
             this.slot42.Name = "slot42";
             this.slot42.Size = new System.Drawing.Size(49, 39);
             this.slot42.TabIndex = 13;
+            this.slot42.Enter += new System.EventHandler(this.textBoxSlot_Enter);
             // 
             // slot41
             // 
@@ -198,10 +214,11 @@ namespace WordamentCheater
             this.slot41.Name = "slot41";
             this.slot41.Size = new System.Drawing.Size(49, 39);
             this.slot41.TabIndex = 12;
+            this.slot41.Enter += new System.EventHandler(this.textBoxSlot_Enter);
             // 
             // btnStart
             // 
-            this.btnStart.Location = new System.Drawing.Point(33, 262);
+            this.btnStart.Location = new System.Drawing.Point(33, 314);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(214, 52);
             this.btnStart.TabIndex = 16;
@@ -264,11 +281,22 @@ namespace WordamentCheater
             this.cmbLanguage.Size = new System.Drawing.Size(214, 21);
             this.cmbLanguage.TabIndex = 21;
             // 
+            // btnOcr
+            // 
+            this.btnOcr.Location = new System.Drawing.Point(33, 260);
+            this.btnOcr.Name = "btnOcr";
+            this.btnOcr.Size = new System.Drawing.Size(214, 48);
+            this.btnOcr.TabIndex = 22;
+            this.btnOcr.Text = "Read Characters using OCR";
+            this.btnOcr.UseVisualStyleBackColor = true;
+            this.btnOcr.Click += new System.EventHandler(this.btnOcr_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(598, 573);
+            this.Controls.Add(this.btnOcr);
             this.Controls.Add(this.cmbLanguage);
             this.Controls.Add(this.txtSolutions);
             this.Controls.Add(this.statusStrip1);
@@ -325,6 +353,7 @@ namespace WordamentCheater
         private System.Windows.Forms.ToolStripProgressBar tspProgressBar;
         private System.Windows.Forms.TextBox txtSolutions;
         private System.Windows.Forms.ComboBox cmbLanguage;
+        private System.Windows.Forms.Button btnOcr;
     }
 }
 

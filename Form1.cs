@@ -5,8 +5,10 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Tesseract;
 
 namespace WordamentCheater
 {
@@ -30,14 +32,61 @@ namespace WordamentCheater
             public BoardSlot[] Neighbors { get; set; }
             public double MouseX { get; set; }
             public double MouseY { get; set; }
-
         }
+
+        #region Event Handlers
 
         private void Form1_Load(object sender, EventArgs e)
         {
             globalHook = Hook.GlobalEvents();
             globalHook.KeyPress += GlobalHookKeyPress;
             cmbLanguage.SelectedIndex = 0;
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            globalHook.KeyPress -= GlobalHookKeyPress;
+            globalHook.Dispose();
+        }
+
+        private void btnOcr_Click(object sender, EventArgs e)
+        {
+            using (var overlay = new SelectionOverlay("Draw a rectangle around the game area to read the characters"))
+            {
+                var textBoxes = new List<TextBox>() {
+                    slot11, slot12, slot13, slot14,
+                    slot21, slot22, slot23, slot24,
+                    slot31, slot32, slot33, slot34,
+                    slot41, slot42, slot43, slot44,
+                };
+
+                var textBoxIndex = 0;
+
+                if (overlay.ShowDialog() == DialogResult.OK)
+                {
+                    var gameArea = overlay.GetSelectionArea();
+                    var slotWidth = gameArea.Width / BOARD_COLS;
+                    var slotHeight = gameArea.Height / BOARD_ROWS;
+
+                    for (var i = 0; i < BOARD_ROWS; i++)
+                    {
+                        for (var j = 0; j < BOARD_COLS; j++)
+                        {
+                            var slotScreenshot = TakeScreenshot(new Rectangle()
+                            {
+                                X = gameArea.X + (slotWidth * j),
+                                Y = gameArea.Y + (slotHeight * i),
+                                Height = slotHeight,
+                                Width = slotWidth
+                            });
+
+                            textBoxes[textBoxIndex].Text = PerformOcr(slotScreenshot);
+                            textBoxIndex++;
+                        }
+                    }
+
+                }
+            }
         }
 
         private void GlobalHookKeyPress(object sender, KeyPressEventArgs e)
@@ -56,6 +105,7 @@ namespace WordamentCheater
                 {
                     var language = cmbLanguage.Text;
                     btnStart.Enabled = false;
+                    btnOcr.Enabled = false;
                     pendingStop = false;
                     tslStatus.Text = "Initializing board...";
                     
@@ -77,21 +127,26 @@ namespace WordamentCheater
                         {
                             if (pendingStop)
                             {
-                                BeginInvoke((Action)(() =>
-                                {
-                                    tslStatus.Text = "Stopped";
-                                    btnStart.Enabled = true;
-                                }));
-                                return;
-
+                                break;
                             }
                             ExecuteWord(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height, word.Value);
                         }
+
+                        BeginInvoke((Action)(() =>
+                        {
+                            tslStatus.Text = "Completed";
+                            btnStart.Enabled = true;
+                            btnOcr.Enabled = true;
+                        }));
                     });
                     task.Start();
                 }
             }
         }
+
+        #endregion
+
+        #region Private Methods
 
         private BoardSlot GetBoardSlot(BoardSlot[,] boardSlot, int row, int col)
         {
@@ -131,7 +186,6 @@ namespace WordamentCheater
 
             return null;
         }
-
 
         private Dictionary<string, string> ReadDictionary(string dictionaryName)
         {
@@ -240,10 +294,71 @@ namespace WordamentCheater
             return board;
         }
 
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        private Bitmap TakeScreenshot(Rectangle rectangle) {
+           
+            using (Image image = new Bitmap(rectangle.Width, rectangle.Height))
+            {
+                using (Graphics graphics = Graphics.FromImage(image))
+                {
+                    graphics.CopyFromScreen(new Point
+                    (rectangle.Left, rectangle.Top), Point.Empty, rectangle.Size);
+                }
+                return new Bitmap(image);
+            }
+        }
+
+        private byte[] ImageToByte(Image img)
         {
-            globalHook.KeyPress -= GlobalHookKeyPress;
-            globalHook.Dispose();
+            var converter = new ImageConverter();
+            return (byte[])converter.ConvertTo(img, typeof(byte[]));
+        }
+
+        private string PerformOcr(Bitmap slotScreenshot)
+        {
+            try
+            {
+                using (var engine = new TesseractEngine(@"C:/tessdata", "eng", EngineMode.Default))
+                {
+                    using (var img = Pix.LoadFromMemory(ImageToByte(slotScreenshot)))
+                    {
+                        using (var page = engine.Process(img, PageSegMode.SingleChar))
+                        {
+
+                            using (var iterator = page.GetIterator())
+                            {
+
+                                iterator.Begin();
+                                do
+                                {
+                                    string currentWord = iterator.GetText(PageIteratorLevel.Word);
+                                    string result = Regex.Replace(
+                                        currentWord.Replace("1","I").Replace("0","O").Replace("|", "I"), 
+                                        @"[^a-zA-Z\-]", "").ToUpper();
+                                    if (result.Length == 2) return result[0] + "/" + result[1];
+                                    return result;
+
+                                }
+                                while (iterator.Next(PageIteratorLevel.Word));
+                            }
+
+                        }
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "OCR Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            return "";
+        }
+
+        #endregion
+
+        private void textBoxSlot_Enter(object sender, EventArgs e)
+        {
+            (sender as TextBox).SelectAll();
         }
     }
 }
