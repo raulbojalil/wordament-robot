@@ -69,6 +69,10 @@
     <Compile Include="SelectionOverlay.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Sudoku\Sudoku.cs" />
+    <Compile Include="Sudoku\SudokuSlot.cs" />
+    <Compile Include="Wordament\BoardSlot.cs" />
+    <Compile Include="Wordament\WordamentBoard.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

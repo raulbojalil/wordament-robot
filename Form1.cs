@@ -6,9 +6,12 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tesseract;
+using WordamentCheater.Sudoku;
+using WordamentCheater.Wordament;
 
 namespace WordamentCheater
 {
@@ -23,21 +26,19 @@ namespace WordamentCheater
         private const int BOARD_ROWS = 4;
         private const int BOARD_COLS = 4;
 
+        private const int SUDOKU_ROWS = 9;
+        private const int SUDOKU_COLS = 9;
+
         private bool pendingStop;
         private IKeyboardMouseEvents globalHook;
+        private WindowsInput.InputSimulator input;
 
-        public class BoardSlot
-        {
-            public string Letter { get; set; }
-            public BoardSlot[] Neighbors { get; set; }
-            public double MouseX { get; set; }
-            public double MouseY { get; set; }
-        }
 
         #region Event Handlers
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            input = new WindowsInput.InputSimulator();
             globalHook = Hook.GlobalEvents();
             globalHook.KeyPress += GlobalHookKeyPress;
             cmbLanguage.SelectedIndex = 0;
@@ -47,6 +48,137 @@ namespace WordamentCheater
         {
             globalHook.KeyPress -= GlobalHookKeyPress;
             globalHook.Dispose();
+        }
+
+        private void textBoxSlot_Enter(object sender, EventArgs e)
+        {
+            (sender as TextBox).SelectAll();
+        }
+
+        private void PrintSudoku(char[,] board)
+        {
+            for (var i = 0; i < SUDOKU_ROWS; i++)
+            {
+                for (var j = 0; j < SUDOKU_COLS; j++)
+                {
+                    Console.Write(board[i, j] + " ");
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        private void PrintSolvedSudoku(SudokuSlot[,] board)
+        {
+            for (var i = 0; i < SUDOKU_ROWS; i++)
+            {
+                for (var j = 0; j < SUDOKU_COLS; j++)
+                {
+                    Console.Write(board[i, j].Number + " ");
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        private Bitmap CropImage(Bitmap image, Rectangle rectangle, float leftPaddingPc = 0, float rightPaddingPc = 0, float topPaddingPc = 0, float bottomPaddingPc = 0)
+        {
+            int leftPadding = (int)((float)rectangle.Width * leftPaddingPc);
+            var topPadding = (int)((float)rectangle.Height * topPaddingPc);
+            int rightPadding = (int)((float)rectangle.Width * rightPaddingPc);
+            var bottomPadding = (int)((float)rectangle.Height * bottomPaddingPc);
+
+            var paddedRectangle = new Rectangle()
+            {
+                X = rectangle.X + leftPadding,
+                Y = rectangle.Y + topPadding,
+                Width = rectangle.Width - leftPadding - rightPadding,
+                Height = rectangle.Height - topPadding - bottomPadding
+            };
+
+            var croppedImage = new Bitmap(paddedRectangle.Width, paddedRectangle.Height);
+            using (var g = Graphics.FromImage(croppedImage))
+            {
+                g.DrawImage(image, -paddedRectangle.X, -paddedRectangle.Y);
+                return croppedImage;
+            }
+        }
+
+        private void btnSolveSudoku_Click(object sender, EventArgs e)
+        {
+            pendingStop = false;
+
+            using (var gameAreaOverlay = new SelectionOverlay("Draw a rectangle around the game area to start"))
+            {
+                if (gameAreaOverlay.ShowDialog() == DialogResult.OK)
+                {
+                    var gameArea = gameAreaOverlay.GetSelectionArea();
+
+                    using (var numberButtonsOverlay = new SelectionOverlay("Draw a rectangle around the number buttons"))
+                    {
+                        if (numberButtonsOverlay.ShowDialog() == DialogResult.OK)
+                        {
+                            var numberButtons = numberButtonsOverlay.GetSelectionArea();
+
+                            var boardScreenshot = TakeScreenshot(gameArea);
+
+                            var slotWidth = gameArea.Width / SUDOKU_COLS;
+                            var slotHeight = gameArea.Height / SUDOKU_ROWS;
+
+                            var board = new char[,]
+                            {
+                                { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
+                                { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
+                                { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
+                                { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
+                                { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
+                                { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
+                                { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
+                                { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' },
+                                { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' }
+                            };
+
+                            for (var i = 0; i < SUDOKU_ROWS; i++)
+                            {
+                                for (var j = 0; j < SUDOKU_COLS; j++)
+                                {
+                                    var slotImage = CropImage(boardScreenshot, new Rectangle()
+                                    {
+                                        X = (slotWidth * j),
+                                        Y = (slotHeight * i),
+                                        Height = slotHeight,
+                                        Width = slotWidth
+                                    });
+
+                                    var extractedNumber = PerformOcr(slotImage);
+                                    extractedNumber = extractedNumber.ToUpper().Replace(" ", "").Replace("I", "1").Replace("O", "").Replace("0", "").Replace("Z", "2");
+
+                                    extractedNumber = Regex.Replace(extractedNumber, @"[^0-9\-]", "");
+
+                                    board[i, j] = extractedNumber.Length > 0 ? extractedNumber[0] : ' ';
+                                }
+                            }
+
+                            PrintSudoku(board);
+
+                            var sudoku = new Sudoku.Sudoku();
+                            var solvedSudoku = sudoku.Solve(gameArea, board);
+
+                            PrintSolvedSudoku(solvedSudoku);
+
+                            for (var i = 0; i < SUDOKU_ROWS; i++)
+                            {
+                                for (var j = 0; j < SUDOKU_COLS; j++)
+                                {
+                                    if (pendingStop) return;
+
+                                    InputNumber(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height, solvedSudoku[i, j], numberButtons);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         private void btnOcr_Click(object sender, EventArgs e)
@@ -68,23 +200,32 @@ namespace WordamentCheater
                     var slotWidth = gameArea.Width / BOARD_COLS;
                     var slotHeight = gameArea.Height / BOARD_ROWS;
 
+                    var gameAreaScreenshot = TakeScreenshot(gameArea);
+
                     for (var i = 0; i < BOARD_ROWS; i++)
                     {
                         for (var j = 0; j < BOARD_COLS; j++)
                         {
-                            var slotScreenshot = TakeScreenshot(new Rectangle()
+                            var slotImage = CropImage(gameAreaScreenshot, new Rectangle()
                             {
-                                X = gameArea.X + (slotWidth * j),
-                                Y = gameArea.Y + (slotHeight * i),
+                                X = slotWidth * j,
+                                Y = slotHeight * i,
                                 Height = slotHeight,
                                 Width = slotWidth
-                            });
+                            }, 0.2f, 0.2f, 0.2f, 0.2f);
 
-                            textBoxes[textBoxIndex].Text = PerformOcr(slotScreenshot);
+                            //slotScreenshot.Save($"{i}-{j}.png");
+
+                            var slotText = PerformOcr(slotImage);
+
+                            slotText = Regex.Replace(
+                                        slotText.Replace("1", "I").Replace("0", "O").Replace("|", "I"),
+                                        @"[^a-zA-Z]", "").ToUpper();
+
+                            textBoxes[textBoxIndex].Text = slotText;
                             textBoxIndex++;
                         }
                     }
-
                 }
             }
         }
@@ -97,7 +238,7 @@ namespace WordamentCheater
             }
         }
 
-        private async void button1_Click(object sender, EventArgs e)
+        private async void btnStart_Click(object sender, EventArgs e)
         {
             using (var overlay = new SelectionOverlay("Draw a rectangle around the game area to start"))
             {
@@ -108,14 +249,22 @@ namespace WordamentCheater
                     btnOcr.Enabled = false;
                     pendingStop = false;
                     tslStatus.Text = "Initializing board...";
-                    
 
+                    var letters = new string[BOARD_ROWS, BOARD_COLS]
+                    {
+                        { slot11.Text, slot12.Text, slot13.Text, slot14.Text },
+                        { slot21.Text, slot22.Text, slot23.Text, slot24.Text },
+                        { slot31.Text, slot32.Text, slot33.Text, slot34.Text },
+                        { slot41.Text, slot42.Text, slot43.Text, slot44.Text },
+                    };
+
+                    var wordament = new WordamentBoard(BOARD_ROWS, BOARD_COLS);
+                    
                     var task = new Task(() =>
                     {
-                        var board = InitBoard(overlay.GetSelectionArea());
                         var dictionary = ReadDictionary($"{language.ToLower()}.txt");
-                        var solutionWords = GetSolutionWords(board, dictionary);
 
+                        var solutionWords = wordament.GetSolutionWords(overlay.GetSelectionArea(), letters, dictionary);
                         var orderedWords = solutionWords.OrderByDescending(x => x.Key.Length);
 
                         BeginInvoke((Action)(() =>
@@ -148,45 +297,6 @@ namespace WordamentCheater
 
         #region Private Methods
 
-        private BoardSlot GetBoardSlot(BoardSlot[,] boardSlot, int row, int col)
-        {
-            if (row < 0 || col < 0) return null;
-            if (row >= BOARD_ROWS) return null;
-            if (col >= BOARD_ROWS) return null;
-
-            return boardSlot[row, col];
-        }
-
-        private string CheckWord(Dictionary<string, string> dict, BoardSlot slot, List<BoardSlot> usedSlots, string currentWord, Dictionary<string, BoardSlot[]> resultingWords)
-        {
-           
-            if(currentWord.Length > 2 && dict.ContainsKey(currentWord))
-            {
-                if (!resultingWords.ContainsKey(currentWord))
-                {
-                    resultingWords.Add(currentWord, usedSlots.ToArray());
-                }
-            }
-
-            foreach (var neighbor in slot.Neighbors)
-            {
-                if (!usedSlots.Contains(neighbor))
-                {
-                    if (slot.Letter.Contains("/"))
-                    {
-                        CheckWord(dict, neighbor, usedSlots.Append(slot).ToList(), currentWord + slot.Letter.Split('/')[0], resultingWords);
-                        CheckWord(dict, neighbor, usedSlots.Append(slot).ToList(), currentWord + slot.Letter.Split('/')[1], resultingWords);
-                    }
-                    else
-                    {
-                        CheckWord(dict, neighbor, usedSlots.Append(slot).ToList(), currentWord + slot.Letter, resultingWords);
-                    }
-                }
-            }
-
-            return null;
-        }
-
         private Dictionary<string, string> ReadDictionary(string dictionaryName)
         {
             var dictionary = new Dictionary<string, string>();
@@ -204,20 +314,28 @@ namespace WordamentCheater
             return dictionary;
         }
 
-        private Dictionary<string, BoardSlot[]> GetSolutionWords(BoardSlot[,] board, Dictionary<string, string> dictionary)
+        private void InputNumber(double screenWidth, double screenHeight, SudokuSlot slot, Rectangle inputNumbersArea)
         {
+            if (slot.IsInitialValue) return;
+
+            var inputNumberWidth = inputNumbersArea.Width / 9;
+            var inputNumberHeight = inputNumbersArea.Height;
+
             
-            var resultingWords = new Dictionary<string, BoardSlot[]>();
 
-            for (var i = 0; i < BOARD_ROWS; i++)
-            {
-                for (var j = 0; j < BOARD_COLS; j++)
-                {
-                    CheckWord(dictionary, board[i, j], new List<BoardSlot>(), "", resultingWords);
-                }
-            }
+            var number = slot.NumberAsInt;
 
-            return resultingWords;
+            if (number == -1) return;
+
+            input.Mouse.Sleep(300);
+
+            input.Mouse.MoveMouseTo(65535 * slot.X / screenWidth, 65535 * slot.Y / screenHeight);
+            input.Mouse.Sleep(50);
+            input.Mouse.LeftButtonClick();
+            input.Mouse.Sleep(50);
+            input.Mouse.MoveMouseTo(65535 * ((inputNumbersArea.X + (inputNumberWidth * (number - 1))) + (inputNumberWidth / 2)) / screenWidth, 65535 * (inputNumbersArea.Y + (inputNumberHeight / 2)) / screenHeight);
+            input.Mouse.Sleep(50);
+            input.Mouse.LeftButtonClick();
         }
 
         private void ExecuteWord(double screenWidth, double screenHeight, BoardSlot[] word)
@@ -227,81 +345,42 @@ namespace WordamentCheater
                 tslStatus.Text = "Executing " + string.Join("", word.Select(x => x.Letter));
             }));
 
-            var input = new WindowsInput.InputSimulator();
-
             input.Mouse.Sleep(2000);
 
-            input.Mouse.MoveMouseTo(65535 * word[0].MouseX / screenWidth, 65535 * word[0].MouseY / screenHeight);
+            input.Mouse.MoveMouseTo(65535 * word[0].X / screenWidth, 65535 * word[0].Y / screenHeight);
             input.Mouse.Sleep(100);
             input.Mouse.LeftButtonDown();
             input.Mouse.Sleep(100);
 
             for (var i=1; i < word.Length; i++)
             {
-                input.Mouse.MoveMouseTo(65535 * word[i].MouseX / screenWidth, 65535 * word[i].MouseY / screenHeight);
+                input.Mouse.MoveMouseTo(65535 * word[i].X / screenWidth, 65535 * word[i].Y / screenHeight);
                 input.Mouse.Sleep(100);
             }
 
             input.Mouse.LeftButtonUp();
         }
 
-        private BoardSlot[,] InitBoard(Rectangle gameArea)
-        {
-            var board = new BoardSlot[BOARD_ROWS, BOARD_COLS];
-            var letters = new string[BOARD_ROWS, BOARD_COLS]
-            {
-                { slot11.Text, slot12.Text, slot13.Text, slot14.Text },
-                { slot21.Text, slot22.Text, slot23.Text, slot24.Text },
-                { slot31.Text, slot32.Text, slot33.Text, slot34.Text },
-                { slot41.Text, slot42.Text, slot43.Text, slot44.Text },
+        private Bitmap TakeScreenshot(Rectangle rectangle, float leftPaddingPc = 0, float rightPaddingPc = 0, float topPaddingPc = 0, float bottomPaddingPc = 0) {
+
+            int leftPadding = (int)((float)rectangle.Width * leftPaddingPc);
+            var topPadding = (int)((float)rectangle.Height * topPaddingPc);
+            int rightPadding = (int)((float)rectangle.Width * rightPaddingPc);
+            var bottomPadding = (int)((float)rectangle.Height * bottomPaddingPc);
+
+            var screenshotRectangle = new Rectangle() { 
+                X = rectangle.X + leftPadding,
+                Y = rectangle.Y + topPadding,
+                Width = rectangle.Width - leftPadding - rightPadding,
+                Height = rectangle.Height - topPadding - bottomPadding
             };
 
-            var slotWidth = gameArea.Width / BOARD_COLS;
-            var slotHeight = gameArea.Height / BOARD_ROWS;
-
-            for (var i = 0; i < BOARD_ROWS; i++)
-            {
-                for (var j = 0; j < BOARD_COLS; j++)
-                {
-                    board[i, j] = new BoardSlot()
-                    {
-                        Letter = letters[i, j],
-                        MouseX = gameArea.X + (slotWidth * j) + (slotWidth / 2),
-                        MouseY = gameArea.Y + (slotHeight * i) + (slotHeight / 2)
-                    };
-                }
-            }
-
-            for (var i = 0; i < BOARD_ROWS; i++)
-            {
-                for (var j = 0; j < BOARD_COLS; j++)
-                {
-                    board[i, j].Neighbors = new BoardSlot[]
-                    {
-                        GetBoardSlot(board, i, j+1),
-                        GetBoardSlot(board, i, j-1),
-                        GetBoardSlot(board, i+1, j),
-                        GetBoardSlot(board, i+1, j+1),
-                        GetBoardSlot(board, i+1, j-1),
-                        GetBoardSlot(board, i-1, j),
-                        GetBoardSlot(board, i-1, j+1),
-                        GetBoardSlot(board, i-1, j-1),
-
-                    }.Where(x => x != null).ToArray();
-                }
-            }
-
-            return board;
-        }
-
-        private Bitmap TakeScreenshot(Rectangle rectangle) {
-           
-            using (Image image = new Bitmap(rectangle.Width, rectangle.Height))
+            using (Image image = new Bitmap(screenshotRectangle.Width, screenshotRectangle.Height))
             {
                 using (Graphics graphics = Graphics.FromImage(image))
                 {
                     graphics.CopyFromScreen(new Point
-                    (rectangle.Left, rectangle.Top), Point.Empty, rectangle.Size);
+                    (screenshotRectangle.Left, screenshotRectangle.Top), Point.Empty, screenshotRectangle.Size);
                 }
                 return new Bitmap(image);
             }
@@ -323,26 +402,21 @@ namespace WordamentCheater
                     {
                         using (var page = engine.Process(img, PageSegMode.SingleChar))
                         {
-
                             using (var iterator = page.GetIterator())
                             {
-
                                 iterator.Begin();
                                 do
                                 {
                                     string currentWord = iterator.GetText(PageIteratorLevel.Word);
-                                    string result = Regex.Replace(
-                                        currentWord.Replace("1","I").Replace("0","O").Replace("|", "I"), 
-                                        @"[^a-zA-Z\-]", "").ToUpper();
-                                    if (result.Length == 2) return result[0] + "/" + result[1];
-                                    return result;
+
+                                    if (currentWord == null) return "";
+
+                                    return currentWord.Trim();
 
                                 }
                                 while (iterator.Next(PageIteratorLevel.Word));
                             }
-
                         }
-
                     }
                 }
             }
@@ -354,11 +428,8 @@ namespace WordamentCheater
             return "";
         }
 
-        #endregion
+       
 
-        private void textBoxSlot_Enter(object sender, EventArgs e)
-        {
-            (sender as TextBox).SelectAll();
-        }
+        #endregion
     }
 }

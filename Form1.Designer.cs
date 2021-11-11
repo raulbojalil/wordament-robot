@@ -53,6 +53,7 @@ namespace WordamentCheater
             this.txtSolutions = new System.Windows.Forms.TextBox();
             this.cmbLanguage = new System.Windows.Forms.ComboBox();
             this.btnOcr = new System.Windows.Forms.Button();
+            this.btnSolveSudoku = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -224,7 +225,7 @@ namespace WordamentCheater
             this.btnStart.TabIndex = 16;
             this.btnStart.Text = "START";
             this.btnStart.UseVisualStyleBackColor = true;
-            this.btnStart.Click += new System.EventHandler(this.button1_Click);
+            this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
             // statusStrip1
             // 
@@ -232,9 +233,9 @@ namespace WordamentCheater
             this.tslStatus,
             this.toolStripStatusLabel2,
             this.tspProgressBar});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 551);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 601);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(598, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(636, 22);
             this.statusStrip1.TabIndex = 18;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -247,7 +248,7 @@ namespace WordamentCheater
             // toolStripStatusLabel2
             // 
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(442, 17);
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(480, 17);
             this.toolStripStatusLabel2.Spring = true;
             // 
             // tspProgressBar
@@ -265,7 +266,7 @@ namespace WordamentCheater
             this.txtSolutions.Name = "txtSolutions";
             this.txtSolutions.ReadOnly = true;
             this.txtSolutions.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtSolutions.Size = new System.Drawing.Size(288, 505);
+            this.txtSolutions.Size = new System.Drawing.Size(326, 555);
             this.txtSolutions.TabIndex = 20;
             // 
             // cmbLanguage
@@ -291,11 +292,22 @@ namespace WordamentCheater
             this.btnOcr.UseVisualStyleBackColor = true;
             this.btnOcr.Click += new System.EventHandler(this.btnOcr_Click);
             // 
+            // btnSolveSudoku
+            // 
+            this.btnSolveSudoku.Location = new System.Drawing.Point(33, 479);
+            this.btnSolveSudoku.Name = "btnSolveSudoku";
+            this.btnSolveSudoku.Size = new System.Drawing.Size(214, 53);
+            this.btnSolveSudoku.TabIndex = 23;
+            this.btnSolveSudoku.Text = "Solve Sudoku";
+            this.btnSolveSudoku.UseVisualStyleBackColor = true;
+            this.btnSolveSudoku.Click += new System.EventHandler(this.btnSolveSudoku_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(598, 573);
+            this.ClientSize = new System.Drawing.Size(636, 623);
+            this.Controls.Add(this.btnSolveSudoku);
             this.Controls.Add(this.btnOcr);
             this.Controls.Add(this.cmbLanguage);
             this.Controls.Add(this.txtSolutions);
@@ -354,6 +366,7 @@ namespace WordamentCheater
         private System.Windows.Forms.TextBox txtSolutions;
         private System.Windows.Forms.ComboBox cmbLanguage;
         private System.Windows.Forms.Button btnOcr;
+        private System.Windows.Forms.Button btnSolveSudoku;
     }
 }
 
