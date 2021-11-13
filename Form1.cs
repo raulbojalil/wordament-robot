@@ -159,22 +159,30 @@ namespace WordamentCheater
                                 }
                             }
 
-                            PrintSudoku(board);
-
-                            var sudoku = new Sudoku.Sudoku();
-                            var solvedSudoku = sudoku.Solve(gameArea, board);
-
-                            PrintSolvedSudoku(solvedSudoku);
-
-                            for (var i = 0; i < SUDOKU_ROWS; i++)
+                            using (var sudokuBoardForm = new SudokuBoardForm())
                             {
-                                for (var j = 0; j < SUDOKU_COLS; j++)
-                                {
-                                    if (pendingStop) return;
+                                sudokuBoardForm.Values = board;
 
-                                    InputNumber(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height, solvedSudoku[i, j], numberButtons);
+                                if (sudokuBoardForm.ShowDialog() == DialogResult.OK)
+                                {
+                                    var sudoku = new Sudoku.Sudoku();
+                                    var solvedSudoku = sudoku.Solve(gameArea, sudokuBoardForm.Values);
+
+                                    PrintSolvedSudoku(solvedSudoku);
+
+                                    Thread.Sleep(3000);
+
+                                    for (var i = 0; i < SUDOKU_ROWS; i++)
+                                    {
+                                        for (var j = 0; j < SUDOKU_COLS; j++)
+                                        {
+                                            if (pendingStop) return;
+
+                                            InputNumber(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height, solvedSudoku[i, j], numberButtons);
+                                        }
+                                    }
                                 }
-                            }
+                            }  
                         }
                     }
                 }
@@ -396,7 +404,7 @@ namespace WordamentCheater
         {
             try
             {
-                using (var engine = new TesseractEngine(@"C:/tessdata", "eng", EngineMode.Default))
+                using (var engine = new TesseractEngine(@"C:/tessdata", "deu", EngineMode.Default))
                 {
                     using (var img = Pix.LoadFromMemory(ImageToByte(slotScreenshot)))
                     {
